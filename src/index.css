@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-base-950 text-slate-100 antialiased;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a3856;
+  border-radius: 8px;
+}
+
+.card {
+  @apply bg-base-900/70 border border-white/5 rounded-2xl shadow-lg shadow-black/20 backdrop-blur;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 font-semibold transition active:scale-95 disabled:opacity-40 disabled:pointer-events-none;
+}
+.btn-primary {
+  @apply btn bg-accent text-white hover:bg-accent-soft shadow-lg shadow-accent/20;
+}
+.btn-secondary {
+  @apply btn bg-base-700 text-slate-100 hover:bg-base-600;
+}
+.btn-ghost {
+  @apply btn bg-transparent text-slate-300 hover:bg-white/5;
+}
+
+.progress-track {
+  @apply w-full h-3 rounded-full bg-base-700 overflow-hidden;
+}
+.progress-fill {
+  @apply h-full rounded-full bg-gradient-to-r from-accent to-focus transition-all duration-500;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop-in {
+  animation: pop-in 0.25s ease-out;
+}
+
+@keyframes toast-in {
+  0% { transform: translateY(-16px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.animate-toast-in {
+  animation: toast-in 0.3s ease-out;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
