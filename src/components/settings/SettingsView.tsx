@@ -2,6 +2,7 @@ import { useRef, type ChangeEvent, type ReactNode } from 'react'
 import { useStore } from '../../store/useStore'
 import { Toggle } from '../ui/Toggle'
 import { requestNotificationPermission } from '../../lib/notifications'
+import { offerDownload } from '../../lib/download'
 
 const STORAGE_KEY = 'zeitmanagement-store'
 
@@ -22,13 +23,7 @@ export function SettingsView() {
   const exportData = () => {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return
-    const blob = new Blob([raw], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `focusflow-backup-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(url)
+    offerDownload(`focusflow-backup-${new Date().toISOString().slice(0, 10)}.json`, raw)
   }
 
   const importData = (e: ChangeEvent<HTMLInputElement>) => {
