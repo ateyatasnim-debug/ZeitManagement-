@@ -14,10 +14,14 @@ import { TreeGrowth } from '../gamification/TreeGrowth'
 import { XPBar } from '../gamification/XPBar'
 import { suggestedLengthForEnergy } from '../../lib/insights'
 import { requestNotificationPermission, sendNotification } from '../../lib/notifications'
+import { useConfirm } from '../../lib/confirm'
+import { formatMinutes } from '../../lib/format'
 import type { EnergyLevel, FocusSession, Preset, SessionType } from '../../types'
 
 interface Props {
   onEnterFocusMode: () => void
+  prefillProjectId?: string
+  onPrefillConsumed: () => void
 }
 
 const PHASE_LABEL: Record<SessionType, string> = {
@@ -26,7 +30,7 @@ const PHASE_LABEL: Record<SessionType, string> = {
   long_break: 'Lange Pause'
 }
 
-export function TimerView({ onEnterFocusMode }: Props) {
+export function TimerView({ onEnterFocusMode, prefillProjectId, onPrefillConsumed }: Props) {
   const activeSession = useStore((s) => s.activeSession)
   const settings = useStore((s) => s.settings)
   const sessions = useStore((s) => s.sessions)
@@ -37,7 +41,7 @@ export function TimerView({ onEnterFocusMode }: Props) {
   const resumeSession = useStore((s) => s.resumeSession)
   const addDistraction = useStore((s) => s.addDistraction)
   const finishSession = useStore((s) => s.finishSession)
-  const cancelSession = useStore((s) => s.cancelSession)
+  const confirm = useConfirm()
 
   const [presetId, setPresetId] = useState(settings.activePresetId)
   const [projectId, setProjectId] = useState<string | undefined>(undefined)
@@ -56,6 +60,12 @@ export function TimerView({ onEnterFocusMode }: Props) {
   useEffect(() => {
     if (settings.notificationsEnabled) requestNotificationPermission()
   }, [settings.notificationsEnabled])
+
+  useEffect(() => {
+    if (!prefillProjectId) return
+    setProjectId(prefillProjectId)
+    onPrefillConsumed()
+  }, [prefillProjectId, onPrefillConsumed])
 
   const remaining = activeSession
     ? Math.max(0, activeSession.plannedMinutes * 60 - elapsedSeconds(activeSession))
@@ -119,6 +129,22 @@ export function TimerView({ onEnterFocusMode }: Props) {
     }
   }
 
+  function handleSkipBreak() {
+    handleFinish(false)
+  }
+
+  async function handleEndFocusEarly() {
+    if (!activeSession) return
+    const minutesSoFar = elapsedSeconds(activeSession) / 60
+    const ok = await confirm({
+      title: 'Session beenden?',
+      message: `Deine bisherige Zeit (${formatMinutes(minutesSoFar)}) wird gespeichert und zählt zu deiner Statistik. Die Session gilt als vorzeitig beendet.`,
+      confirmLabel: 'Beenden',
+      danger: true
+    })
+    if (ok) handleFinish(false)
+  }
+
   function handleStartFocus() {
     const minutes = preset.focusMinutes
     startSession('focus', minutes, { projectId, taskLabel: taskLabel || undefined, energyBefore: energy })
@@ -163,16 +189,17 @@ export function TimerView({ onEnterFocusMode }: Props) {
                 ) : (
                   <button className="btn-primary" onClick={resumeSession}>▶️ Fortsetzen</button>
                 )}
-                <button className="btn-secondary" onClick={() => handleFinish(false)}>⏭ Skip</button>
-                {activeSession.type === 'focus' && (
-                  <button className="btn-secondary" onClick={() => setDistractionOpen(true)}>
-                    📱 Ich wurde abgelenkt
-                  </button>
+                {activeSession.type === 'focus' ? (
+                  <>
+                    <button className="btn-secondary" onClick={() => setDistractionOpen(true)}>
+                      📱 Ich wurde abgelenkt
+                    </button>
+                    <button className="btn-primary" onClick={onEnterFocusMode}>🔒 Fokus-Modus</button>
+                    <button className="btn-ghost text-rose-400" onClick={handleEndFocusEarly}>Beenden</button>
+                  </>
+                ) : (
+                  <button className="btn-ghost" onClick={handleSkipBreak}>⏭ Pause überspringen</button>
                 )}
-                {activeSession.type === 'focus' && (
-                  <button className="btn-primary" onClick={onEnterFocusMode}>🔒 Fokus-Modus</button>
-                )}
-                <button className="btn-ghost text-rose-400" onClick={cancelSession}>Abbrechen</button>
               </div>
               {(activeSession.pauseCount > 0 || activeSession.distractions.length > 0) && (
                 <div className="mt-4 text-xs text-slate-500">
@@ -188,7 +215,7 @@ export function TimerView({ onEnterFocusMode }: Props) {
               {pendingNext && (
                 <div className="w-full mt-5 card p-3 border-accent/30 bg-accent/5 flex items-center justify-between gap-3">
                   <span className="text-sm font-medium">
-                    Als nächstes: {PHASE_LABEL[pendingNext.type]} ({pendingNext.minutes} Min.)
+                    Als nächstes: {PHASE_LABEL[pendingNext.type]} ({formatMinutes(pendingNext.minutes)})
                   </span>
                   <div className="flex gap-2">
                     <button className="btn-primary text-sm py-1.5 px-3" onClick={handleStartPending}>Starten</button>
@@ -233,7 +260,7 @@ export function TimerView({ onEnterFocusMode }: Props) {
                 )}
 
                 <button className="btn-primary w-full text-base py-3" onClick={handleStartFocus}>
-                  ▶️ Start ({preset.focusMinutes} Min.)
+                  ▶️ Start ({formatMinutes(preset.focusMinutes)})
                 </button>
               </div>
             </>

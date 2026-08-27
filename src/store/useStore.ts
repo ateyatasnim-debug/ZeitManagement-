@@ -59,7 +59,6 @@ interface StoreState extends AppState {
   resumeSession: () => void
   addDistraction: (reason: DistractionReason, note?: string) => void
   finishSession: (completedNaturally: boolean) => void
-  cancelSession: () => void
 
   dismissToast: (id: string) => void
   dismissAdaptiveSuggestion: () => void
@@ -187,8 +186,6 @@ export const useStore = create<StoreState>()(
         set({ activeSession: { ...active, distractions: [...active.distractions, event] } })
       },
 
-      cancelSession: () => set({ activeSession: null }),
-
       finishSession: (completedNaturally) => {
         const active = get().activeSession
         if (!active) return
@@ -240,7 +237,7 @@ export const useStore = create<StoreState>()(
 
             const today = todayKey()
             const todaysFocusMinutes = sessions
-              .filter((x) => x.type === 'focus' && x.completed && toDateKey(x.startedAt) === today)
+              .filter((x) => x.type === 'focus' && toDateKey(x.startedAt) === today)
               .reduce((sum, x) => sum + x.actualSeconds / 60, 0)
 
             if (todaysFocusMinutes >= 30 && !streakDates.includes(today)) {

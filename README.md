@@ -22,6 +22,12 @@ Pomodoro-Timer mit Fokus-Statistik, Gamification, Projekten und Study Mode – a
 
 Alle Daten bleiben lokal auf dem Gerät (`localStorage`) – keine Cloud, kein Server, kein Tracking. Export/Import als JSON-Backup ist in den Einstellungen möglich.
 
+## Live-Version (GitHub Pages)
+
+Die App wird automatisch per GitHub Actions gebaut und veröffentlicht (`.github/workflows/deploy-pages.yml`), sobald in diesem Repository unter **Settings → Pages → Build and deployment → Source** die Option **„GitHub Actions“** ausgewählt ist (einmaliger manueller Schritt, danach läuft jeder Push automatisch durch).
+
+Danach ist die App unter `https://<github-nutzername>.github.io/<repo-name>/` erreichbar – als richtige, eigenständige Seite (nicht eingebettet), damit `localStorage` zuverlässig erhalten bleibt, auch wenn die App auf dem iPad geschlossen und wieder geöffnet wird.
+
 ## Entwicklung
 
 ```bash

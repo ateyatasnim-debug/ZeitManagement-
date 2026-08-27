@@ -98,14 +98,14 @@ export interface DailyInsight {
 export function computeDailyInsight(state: AppState): DailyInsight {
   const today = toDateKey(new Date())
   const todaysSessions = state.sessions.filter(
-    (s) => s.type === 'focus' && s.completed && toDateKey(s.startedAt) === today
+    (s) => s.type === 'focus' && toDateKey(s.startedAt) === today
   )
   const focusMinutesToday = todaysSessions.reduce((sum, s) => sum + s.actualSeconds / 60, 0)
   const sessionsToday = todaysSessions.length
   const avgSessionMinutes = sessionsToday > 0 ? focusMinutesToday / sessionsToday : 0
 
-  const allCompleted = state.sessions.filter((s) => s.type === 'focus' && s.completed)
-  const bestWindow = bestProductiveWindow(allCompleted)
+  const allFocusSessions = state.sessions.filter((s) => s.type === 'focus')
+  const bestWindow = bestProductiveWindow(allFocusSessions)
 
   let recommendation: string
   if (sessionsToday === 0) {

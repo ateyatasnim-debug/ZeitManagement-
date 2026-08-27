@@ -19,7 +19,8 @@ export const ACHIEVEMENTS: Achievement[] = [
 ]
 
 export function evaluateAchievements(state: AppState): string[] {
-  const completed = state.sessions.filter((s) => s.type === 'focus' && s.completed)
+  const all = state.sessions.filter((s) => s.type === 'focus')
+  const completed = all.filter((s) => s.completed)
   const unlockedIds = new Set(state.unlockedAchievements.map((a) => a.id))
   const newly: string[] = []
 
@@ -27,7 +28,7 @@ export function evaluateAchievements(state: AppState): string[] {
     if (condition && !unlockedIds.has(id)) newly.push(id)
   }
 
-  const totalFocusMinutes = completed.reduce((sum, s) => sum + s.actualSeconds / 60, 0)
+  const totalFocusMinutes = all.reduce((sum, s) => sum + s.actualSeconds / 60, 0)
   const totalFocusHours = totalFocusMinutes / 60
 
   unlock('first_session', completed.length >= 1)
@@ -47,7 +48,7 @@ export function evaluateAchievements(state: AppState): string[] {
   unlock('early_bird', earlySessions.length >= 5)
 
   const byDay = new Map<string, number>()
-  for (const s of completed) {
+  for (const s of all) {
     const key = toDateKey(s.startedAt)
     byDay.set(key, (byDay.get(key) || 0) + s.actualSeconds / 60)
   }

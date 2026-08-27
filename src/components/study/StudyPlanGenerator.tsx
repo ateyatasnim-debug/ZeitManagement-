@@ -28,10 +28,11 @@ export function StudyPlanGenerator() {
 
   return (
     <div className="card p-4">
-      <div className="text-sm font-semibold text-slate-300 mb-1 flex items-center gap-2">📋 Lernplan-Generator</div>
+      <div className="text-sm font-semibold text-slate-300 mb-1 flex items-center gap-2">📋 Lerntag planen</div>
       <p className="text-xs text-slate-500 mb-3">
-        Regelbasierter Plan (kein externer KI-Dienst nötig): teilt deine Lernzeit automatisch in Fokus- und
-        Pausenblöcke auf, z. B. „Ich muss morgen für meine Matheprüfung lernen“ → wie viele Minuten insgesamt?
+        Wie viel willst du heute insgesamt lernen? Dieser Rechner teilt die Zeit automatisch in Fokus- und
+        Pausenblöcke nach deinem Preset auf und zeigt dir eine feste Uhrzeit für jeden Block – als Vorlage zum
+        Abarbeiten, du startest die einzelnen Blöcke dann ganz normal im Timer.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">

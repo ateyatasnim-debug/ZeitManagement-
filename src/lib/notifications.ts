@@ -10,7 +10,7 @@ export function sendNotification(title: string, body: string, silent = false) {
   if (!('Notification' in window)) return
   if (Notification.permission !== 'granted') return
   try {
-    new Notification(title, { body, silent, icon: '/icons/icon-192.png' })
+    new Notification(title, { body, silent, icon: `${import.meta.env.BASE_URL}icons/icon-192.png` })
   } catch {
     /* some browsers throw if not from a service worker context on mobile; ignore */
   }

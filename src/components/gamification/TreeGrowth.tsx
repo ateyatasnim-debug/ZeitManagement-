@@ -9,7 +9,7 @@ export function TreeGrowth() {
   const todayMinutes = useMemo(() => {
     const today = toDateKey(new Date())
     return sessions
-      .filter((s) => s.type === 'focus' && s.completed && toDateKey(s.startedAt) === today)
+      .filter((s) => s.type === 'focus' && toDateKey(s.startedAt) === today)
       .reduce((sum, s) => sum + s.actualSeconds / 60, 0)
   }, [sessions])
 

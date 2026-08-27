@@ -3,11 +3,13 @@ import { useStore } from '../../store/useStore'
 import { ProjectForm } from './ProjectForm'
 import type { Project } from '../../types'
 import { formatMinutes, startOfWeek, toDateKey } from '../../lib/format'
+import { useConfirm } from '../../lib/confirm'
 
 export function ProjectsView() {
   const projects = useStore((s) => s.projects)
   const sessions = useStore((s) => s.sessions)
   const deleteProject = useStore((s) => s.deleteProject)
+  const confirm = useConfirm()
   const [formOpen, setFormOpen] = useState(false)
   const [formParent, setFormParent] = useState<string | undefined>(undefined)
   const [editing, setEditing] = useState<Project | undefined>(undefined)
@@ -16,7 +18,7 @@ export function ProjectsView() {
     const weekStart = startOfWeek().getTime()
     const totals = new Map<string, { total: number; week: number }>()
     for (const s of sessions) {
-      if (s.type !== 'focus' || !s.completed || !s.projectId) continue
+      if (s.type !== 'focus' || !s.projectId) continue
       const entry = totals.get(s.projectId) ?? { total: 0, week: 0 }
       entry.total += s.actualSeconds / 60
       if (s.startedAt >= weekStart) entry.week += s.actualSeconds / 60
@@ -39,6 +41,20 @@ export function ProjectsView() {
     setFormOpen(true)
   }
 
+  const handleDelete = async (p: Project) => {
+    const children = childrenOf(p.id)
+    const ok = await confirm({
+      title: 'Projekt löschen?',
+      message:
+        children.length > 0
+          ? `„${p.name}" und ${children.length} Unterprojekt(e) werden dauerhaft gelöscht. Bereits erfasste Fokus-Sessions bleiben in der Statistik erhalten.`
+          : `„${p.name}" wird dauerhaft gelöscht. Bereits erfasste Fokus-Sessions bleiben in der Statistik erhalten.`,
+      confirmLabel: 'Löschen',
+      danger: true
+    })
+    if (ok) deleteProject(p.id)
+  }
+
   const renderProject = (p: Project, depth: number) => {
     const stats = minutesById.get(p.id) ?? { total: 0, week: 0 }
     const children = childrenOf(p.id)
@@ -57,7 +73,7 @@ export function ProjectsView() {
           </div>
           <button onClick={() => openCreate(p.id)} className="text-xs text-slate-400 hover:text-accent px-2">+ Unterprojekt</button>
           <button onClick={() => openEdit(p)} className="text-xs text-slate-400 hover:text-accent px-2">Bearbeiten</button>
-          <button onClick={() => deleteProject(p.id)} className="text-xs text-slate-500 hover:text-rose-400 px-2">Löschen</button>
+          <button onClick={() => handleDelete(p)} className="text-xs text-slate-500 hover:text-rose-400 px-2">Löschen</button>
         </div>
         {children.map((c) => renderProject(c, depth + 1))}
       </div>
